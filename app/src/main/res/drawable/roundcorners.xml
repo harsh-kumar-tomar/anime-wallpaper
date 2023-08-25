@@ -1,0 +1,5 @@
+<!-- rounded_corner.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="50dp" /> <!-- Adjust the radius to control the corner roundness -->
+    <solid android:color="#fff" />
+</shape>
