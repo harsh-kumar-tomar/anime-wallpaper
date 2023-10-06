@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,17 +14,23 @@
         android:label="Anime Wallpaper"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-        tools:targetApi="31">
+        android:theme="@style/Base.Theme.Javaappversion8"
+        >
+
         <activity
             android:name=".inside_single_view_activity"
+            android:screenOrientation="portrait"
             android:exported="false" />
+
         <activity
             android:name=".fullscreenwallpaper"
+            android:screenOrientation="portrait"
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:theme="@style/SplashScreenTheme"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +38,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

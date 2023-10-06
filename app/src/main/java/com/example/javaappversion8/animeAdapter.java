@@ -4,11 +4,13 @@ import static androidx.core.content.ContextCompat.startActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,20 +26,33 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+
+//this adapter is used to display all the Anime titles with thier images
+
 
 public class animeAdapter extends RecyclerView.Adapter<animeAdapter.ViewHolder> {
-    Context context ;
-    ArrayList<structAnime> animeArrayList ; //all different anime cardview details  name , drawable , code
-    DatabaseReference databaseReference ;
-    ArrayList<String> insideImagesList ;
+    private Context context ;
+    private ArrayList<structAnime> animeArrayList ; //all different anime cardview details  name , drawable , code will be stored here
+    private DatabaseReference databaseReference ;   //this database will be used to fetch all the wallpapers related to that anime title
+    private ArrayList<String> insideImagesList ;    //this is where all the url of images will be stored
+    private String Code;                            //this will be used to access data related to different titles
+    private HashMap<String, ArrayList<String>> mapOfLists ;
 
-    String Code;
+    private ArrayList<structAnime> tempArrayList ;
 
 
-    animeAdapter(Context context , ArrayList<structAnime> animeArrayList)
+    animeAdapter(Context context ,ArrayList<structAnime>animeArrayList , HashMap<String, ArrayList<String>> mapOfLists)
     {
-        this.context = context ;
-        this.animeArrayList = animeArrayList ;
+
+            this.context = context;
+            this.animeArrayList = animeArrayList;
+            this.mapOfLists = mapOfLists;
+
+            tempArrayList = new ArrayList<>();
+            tempArrayList.addAll(animeArrayList);
+
     }
 
     @NonNull
@@ -56,38 +71,27 @@ public class animeAdapter extends RecyclerView.Adapter<animeAdapter.ViewHolder> 
         holder.txtName.setText(animeArrayList.get(position).name);
 
 
-
         runAnimation(holder.itemView , position);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {       //selecting one card view
 
-                Code = animeArrayList.get(holder.getAdapterPosition()).Code;
-                databaseReference = FirebaseDatabase.getInstance().getReference().child(Code);
-                insideImagesList = new ArrayList<>();
-                databaseReference.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {  //fetching the url from internet
+                try {
 
-                        for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                            String data = dataSnapshot.getValue().toString();
-                            insideImagesList.add(data);         //putting all url of the wallpaper related to that anime
+                    insideImagesList = mapOfLists.get(animeArrayList.get(holder.getAdapterPosition()).Code);
 
-                        }                           //all image information are inside insideImageslist
-
-                        Intent intent = new Intent(context , inside_single_view_activity.class);    //open images List
-                        intent.putExtra("dataList",insideImagesList);
-                        context.startActivity(intent);
-
-                    }
-                    public void onCancelled( DatabaseError error) {
-
-                        Toast.makeText(context , "error"+error.getMessage() , Toast.LENGTH_SHORT);
+                    Intent intent = new Intent(context, inside_single_view_activity.class);    //open images List
+                    intent.putExtra("dataList", insideImagesList);
+                    intent.putExtra("title",animeArrayList.get(holder.getAdapterPosition()).name);
+                    context.startActivity(intent);
+                }catch (Exception e)
+                {
+                    Log.e("click success", "inside click catch part"+e.getMessage());
 
 
-                    }
-                });
+                }
+
 
             }
         });
@@ -99,6 +103,7 @@ public class animeAdapter extends RecyclerView.Adapter<animeAdapter.ViewHolder> 
     public int getItemCount() {
         return animeArrayList.size();
     }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder
     {
@@ -120,4 +125,22 @@ public class animeAdapter extends RecyclerView.Adapter<animeAdapter.ViewHolder> 
         view.startAnimation(animation);
 
     }
+
+    public void getFilter(String s) {
+
+        animeArrayList.clear();
+
+        for (int i = 0; i < tempArrayList.size(); i++) {
+
+            if (tempArrayList.get(i).name.toLowerCase().contains(s.toLowerCase())) {
+                animeArrayList.add(tempArrayList.get(i)); // Add matching items to the filtered list
+            }
+
+        }
+
+        notifyDataSetChanged();
+
+    }
+
+//
 }
